@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout - ShopHub</title>
+  <link rel="stylesheet" href="/css/checkout.css">
+</head>
+<body>
+  <header class="header">
+    <div class="container">
+      <a href="http://localhost:3001" class="logo">🛒 ShopHub</a>
+      <span class="secure-badge">🔒 Secure Checkout</span>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="container">
+      <h1 class="page-title">Checkout</h1>
+
+      <div id="loading" class="loading">
+        <div class="spinner"></div>
+        <p>Loading checkout...</p>
+      </div>
+
+      <div id="emptyCart" class="empty-cart hidden">
+        <div class="empty-icon">🛒</div>
+        <h2>Your cart is empty</h2>
+        <p>Add some products to your cart before proceeding to checkout.</p>
+        <a href="http://localhost:3001" class="btn btn-primary">Continue Shopping</a>
+      </div>
+
+      <div id="checkoutContent" class="checkout-content hidden">
+        <div class="checkout-grid">
+          <!-- Left Column - Forms -->
+          <div class="checkout-forms">
+            <!-- Shipping Address Form -->
+            <div class="form-section">
+              <h2 class="section-title">1. Shipping Address</h2>
+              <form id="shippingForm" class="checkout-form">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="customerName">Full Name *</label>
+                    <input type="text" id="customerName" required placeholder="John Doe">
+                  </div>
+                  <div class="form-group">
+                    <label for="customerEmail">Email *</label>
+                    <input type="email" id="customerEmail" required placeholder="john@example.com">
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="address">Address *</label>
+                  <textarea id="address" required placeholder="House no., Street, Area" rows="2"></textarea>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="city">City *</label>
+                    <input type="text" id="city" required placeholder="Mumbai">
+                  </div>
+                  <div class="form-group">
+                    <label for="state">State *</label>
+                    <input type="text" id="state" required placeholder="Maharashtra">
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="pincode">Pincode *</label>
+                    <input type="text" id="pincode" required placeholder="400001" pattern="[0-9]{6}">
+                  </div>
+                  <div class="form-group">
+                    <label for="phone">Phone *</label>
+                    <input type="tel" id="phone" required placeholder="9876543210" pattern="[0-9]{10}">
+                  </div>
+                </div>
+
+                <button type="submit" class="btn btn-secondary">Save Address</button>
+              </form>
+            </div>
+
+            <!-- Payment Method -->
+            <div class="form-section">
+              <h2 class="section-title">2. Payment Method</h2>
+              <div class="payment-methods">
+                <label class="payment-option">
+                  <input type="radio" name="paymentMethod" value="card" checked>
+                  <span class="payment-icon">💳</span>
+                  <span>Credit/Debit Card</span>
+                </label>
+                <label class="payment-option">
+                  <input type="radio" name="paymentMethod" value="upi">
+                  <span class="payment-icon">📱</span>
+                  <span>UPI</span>
+                </label>
+                <label class="payment-option">
+                  <input type="radio" name="paymentMethod" value="netbanking">
+                  <span class="payment-icon">🏦</span>
+                  <span>Net Banking</span>
+                </label>
+                <label class="payment-option">
+                  <input type="radio" name="paymentMethod" value="cod">
+                  <span class="payment-icon">💵</span>
+                  <span>Cash on Delivery</span>
+                </label>
+              </div>
+
+              <div id="cardDetails" class="payment-details">
+                <div class="form-group">
+                  <label for="cardNumber">Card Number</label>
+                  <input type="text" id="cardNumber" placeholder="1234 5678 9012 3456" maxlength="19">
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="expiry">Expiry</label>
+                    <input type="text" id="expiry" placeholder="MM/YY" maxlength="5">
+                  </div>
+                  <div class="form-group">
+                    <label for="cvv">CVV</label>
+                    <input type="text" id="cvv" placeholder="123" maxlength="3">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="cardName">Name on Card</label>
+                  <input type="text" id="cardName" placeholder="JOHN DOE">
+                </div>
+              </div>
+            </div>
+
+            <!-- Discount Code -->
+            <div class="form-section">
+              <h2 class="section-title">3. Apply Discount</h2>
+              <div class="discount-section">
+                <div class="discount-input">
+                  <input type="text" id="discountCode" placeholder="Enter coupon code">
+                  <button id="applyDiscount" class="btn btn-secondary">Apply</button>
+                </div>
+                <div id="discountMessage" class="discount-message"></div>
+                <div class="available-coupons">
+                  <p><strong>Available Coupons:</strong></p>
+                  <span class="coupon-tag" onclick="applyCoupon('WELCOME10')">WELCOME10 - 10% Off</span>
+                  <span class="coupon-tag" onclick="applyCoupon('SAVE20')">SAVE20 - 20% Off (₹5000+)</span>
+                  <span class="coupon-tag" onclick="applyCoupon('FLAT500')">FLAT500 - ₹500 Off (₹3000+)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column - Order Summary -->
+          <div class="order-summary">
+            <div class="summary-card">
+              <h2 class="summary-title">Order Summary</h2>
+              
+              <div id="summaryItems" class="summary-items">
+                <!-- Items will be loaded here -->
+              </div>
+
+              <div class="summary-divider"></div>
+
+              <div class="summary-row">
+                <span>Subtotal</span>
+                <span id="subtotal">₹0</span>
+              </div>
+
+              <div class="summary-row discount-row" id="discountRow">
+                <span>Discount</span>
+                <span id="discount">₹0</span>
+              </div>
+
+              <div class="summary-row">
+                <span>Shipping</span>
+                <span id="shipping">₹0</span>
+              </div>
+
+              <div class="summary-row">
+                <span>Tax (18% GST)</span>
+                <span id="tax">₹0</span>
+              </div>
+
+              <div class="summary-divider"></div>
+
+              <div class="summary-row total">
+                <span>Total</span>
+                <span id="total">₹0</span>
+              </div>
+
+              <button id="placeOrder" class="btn btn-primary btn-block btn-large">
+                Place Order
+              </button>
+
+              <p class="terms-text">
+                By placing this order, you agree to our Terms of Service and Privacy Policy.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Order Success Modal -->
+  <div id="successModal" class="modal hidden">
+    <div class="modal-content">
+      <div class="success-icon">✓</div>
+      <h2>Order Placed Successfully!</h2>
+      <p>Your order has been confirmed. You will receive an email shortly.</p>
+      <p><strong>Order ID:</strong> <span id="orderId"></span></p>
+      <p><strong>Total Amount:</strong> <span id="orderTotal"></span></p>
+      <div class="modal-actions">
+        <a href="http://localhost:3001" class="btn btn-primary">Continue Shopping</a>
+        <button id="viewOrder" class="btn btn-secondary">View Order Details</button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="container">
+      <p>&copy; 2026 ShopHub. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="/js/checkout.js"></script>
+</body>
+</html>

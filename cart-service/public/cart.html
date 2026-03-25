@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shopping Cart - ShopHub</title>
+  <link rel="stylesheet" href="/css/cart.css">
+</head>
+<body>
+  <header class="header">
+    <div class="container">
+      <a href="http://localhost:3001" class="logo">🛒 ShopHub</a>
+      <div class="header-actions">
+        <span class="cart-total" id="headerTotal">$0.00</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="container">
+      <h1 class="page-title">Shopping Cart</h1>
+
+      <div id="loading" class="loading">
+        <div class="spinner"></div>
+        <p>Loading your cart...</p>
+      </div>
+
+      <div id="emptyCart" class="empty-cart hidden">
+        <div class="empty-icon">🛒</div>
+        <h2>Your cart is empty</h2>
+        <p>Looks like you haven't added anything to your cart yet.</p>
+        <a href="http://localhost:3001" class="btn btn-primary">Start Shopping</a>
+      </div>
+
+      <div id="cartContent" class="cart-content hidden">
+        <div class="cart-items">
+          <h2 class="section-title">Cart Items (<span id="itemCount">0</span>)</h2>
+          <div id="cartItems" class="cart-items-list">
+            <!-- Cart items will be loaded here -->
+          </div>
+        </div>
+
+        <div class="cart-summary">
+          <div class="summary-card">
+            <h2 class="summary-title">Order Summary</h2>
+            
+            <div class="summary-row">
+              <span>Subtotal</span>
+              <span id="subtotal">$0.00</span>
+            </div>
+            
+            <div class="summary-row">
+              <span>Shipping</span>
+              <span id="shipping">$0.00</span>
+            </div>
+            
+            <div class="summary-row">
+              <span>Tax (10%)</span>
+              <span id="tax">$0.00</span>
+            </div>
+            
+            <div class="summary-divider"></div>
+            
+            <div class="summary-row total">
+              <span>Total</span>
+              <span id="total">$0.00</span>
+            </div>
+
+            <button id="proceedToCheckout" class="btn btn-primary btn-block">Proceed to Checkout</button>
+            <button id="clearCart" class="btn btn-secondary btn-block">Clear Cart</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <p>&copy; 2026 ShopHub. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="/js/cart.js"></script>
+</body>
+</html>

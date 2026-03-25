@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>E-Commerce Catalog</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="header">
+    <div class="container">
+      <a href="http://localhost:3000" class="logo">🛒 ShopHub</a>
+      <nav class="nav">
+        <a href="#" class="nav-link active" data-category="all">All Products</a>
+        <a href="#" class="nav-link" data-category="Electronics">Electronics</a>
+        <a href="#" class="nav-link" data-category="Clothing">Clothing</a>
+        <a href="#" class="nav-link" data-category="Home & Kitchen">Home & Kitchen</a>
+        <a href="#" class="nav-link" data-category="Books">Books</a>
+        <a href="#" class="nav-link" data-category="Sports & Outdoors">Sports</a>
+      </nav>
+      <div class="header-actions">
+        <span class="user-info" id="userInfo"></span>
+        <button id="logoutBtn" class="btn-logout">Logout</button>
+        <a href="http://localhost:3002?userId=" id="cartIcon" class="cart-icon">
+          🛒
+          <span class="cart-count" id="cartCount">0</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="container">
+      <div class="filters">
+        <div class="search-box">
+          <input type="text" id="searchInput" placeholder="Search products..." class="search-input">
+          <button id="searchBtn" class="btn btn-primary">Search</button>
+        </div>
+        <div class="price-filter">
+          <input type="number" id="minPrice" placeholder="Min $" class="price-input" min="0">
+          <span class="separator">-</span>
+          <input type="number" id="maxPrice" placeholder="Max $" class="price-input" min="0">
+          <button id="applyPrice" class="btn btn-secondary">Apply</button>
+        </div>
+      </div>
+
+      <div class="products-header">
+        <h2 id="productsTitle">All Products</h2>
+        <span id="productsCount" class="count-badge">0 items</span>
+      </div>
+
+      <div id="loading" class="loading">
+        <div class="spinner"></div>
+        <p>Loading products...</p>
+      </div>
+
+      <div id="error" class="error hidden">
+        <p>Failed to load products. Please try again.</p>
+        <button id="retryBtn" class="btn btn-primary">Retry</button>
+      </div>
+
+      <div id="productsGrid" class="products-grid">
+        <!-- Products will be loaded here -->
+      </div>
+
+      <div id="pagination" class="pagination hidden">
+        <button id="prevPage" class="btn btn-secondary" disabled>← Previous</button>
+        <span id="pageInfo" class="page-info">Page 1</span>
+        <button id="nextPage" class="btn btn-secondary">Next →</button>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <p>&copy; 2026 ShopHub. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

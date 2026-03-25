@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - ShopHub</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body class="auth-page">
+  <nav class="navbar">
+    <div class="container">
+      <a href="/" class="nav-brand">🛒 ShopHub</a>
+      <div class="nav-links">
+        <a href="/" class="nav-link">Home</a>
+        <a href="/signup" class="btn btn-outline">Sign Up</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="auth-container">
+    <div class="auth-card">
+      <div class="auth-header">
+        <h1>Welcome Back!</h1>
+        <p>Login to continue shopping</p>
+      </div>
+
+      <form id="loginForm" class="auth-form">
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <input type="email" id="email" name="email" required placeholder="you@example.com">
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" required placeholder="Enter your password">
+        </div>
+
+        <div class="form-options">
+          <label class="checkbox-label">
+            <input type="checkbox" id="remember">
+            <span>Remember me</span>
+          </label>
+          <a href="#" class="forgot-link">Forgot password?</a>
+        </div>
+
+        <div id="errorMessage" class="error-message"></div>
+
+        <button type="submit" class="btn btn-primary btn-block btn-large">
+          Login
+        </button>
+
+        <div class="auth-divider">
+          <span>or</span>
+        </div>
+
+        <div class="demo-credentials">
+          <p><strong>Demo Credentials:</strong></p>
+          <p>Email: demo@shophub.com</p>
+          <p>Password: demo123</p>
+        </div>
+      </form>
+
+      <p class="auth-footer">
+        Don't have an account? <a href="/signup">Sign up</a>
+      </p>
+    </div>
+  </main>
+
+  <footer class="footer-simple">
+    <p>&copy; 2026 ShopHub. All rights reserved.</p>
+  </footer>
+
+  <script src="/js/login.js"></script>
+</body>
+</html>
