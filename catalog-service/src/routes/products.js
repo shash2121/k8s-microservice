@@ -1,21 +1,45 @@
 const express = require('express');
 const router = express.Router();
 const products = require('../../data/products');
+const { cache } = require('../config/redis');
+
+const CACHE_TTL = 300;
 
 console.log('Product routes loaded, products count:', products.length);
 
-// GET all products
-router.get('/', (req, res) => {
-  res.json({
+function buildCacheKey(prefix, params = {}) {
+  return `${prefix}:${JSON.stringify(params)}`;
+}
+
+router.get('/', async (req, res) => {
+  const cacheKey = 'products:all';
+  const cached = await cache.get(cacheKey);
+  
+  if (cached) {
+    return res.json({ ...cached, cached: true });
+  }
+
+  const data = {
     success: true,
     count: products.length,
     data: products
-  });
+  };
+
+  console.log('[catalog] Caching key', cacheKey);
+  const resultAll = await cache.set(cacheKey, data, CACHE_TTL);
+  console.log('[catalog] Cache set result for all products:', resultAll);
+  res.json(data);
 });
 
-// GET products by category
-router.get('/category/:category', (req, res) => {
-  const category = req.params.category;
+router.get('/category/:category', async (req, res) => {
+  const { category } = req.params;
+  const cacheKey = buildCacheKey('products:category', { category: category.toLowerCase() });
+  const cached = await cache.get(cacheKey);
+
+  if (cached) {
+    return res.json({ ...cached, cached: true });
+  }
+
   const filteredProducts = products.filter(
     product => product.category.toLowerCase() === category.toLowerCase()
   );
@@ -27,31 +51,51 @@ router.get('/category/:category', (req, res) => {
     });
   }
 
-  res.json({
+  const data = {
     success: true,
     count: filteredProducts.length,
     category: category,
     data: filteredProducts
-  });
+  };
+
+  console.log('[catalog] Caching key', cacheKey);
+  const resultCategory = await cache.set(cacheKey, data, CACHE_TTL);
+  console.log('[catalog] Cache set result for category:', resultCategory);
+  res.json(data);
 });
 
-// GET all categories
-router.get('/categories', (req, res) => {
+router.get('/categories', async (req, res) => {
+  const cacheKey = 'products:categories';
+  const cached = await cache.get(cacheKey);
+
+  if (cached) {
+    return res.json({ ...cached, cached: true });
+  }
+
   const categories = [...new Set(products.map(product => product.category))];
-  res.json({
+  const data = {
     success: true,
     count: categories.length,
     data: categories
-  });
+  };
+
+  console.log('[catalog] Caching key', cacheKey);
+  const resultCategories = await cache.set(cacheKey, data, CACHE_TTL);
+  console.log('[catalog] Cache set result for categories list:', resultCategories);
+  res.json(data);
 });
 
-// GET products with pagination and search (must be before /:id)
-router.get('/search', (req, res) => {
+router.get('/search', async (req, res) => {
   const { q, category, minPrice, maxPrice, page = 1, limit = 10 } = req.query;
+  const cacheKey = buildCacheKey('products:search', { q, category, minPrice, maxPrice, page, limit });
+  const cached = await cache.get(cacheKey);
+
+  if (cached) {
+    return res.json({ ...cached, cached: true });
+  }
 
   let filteredProducts = [...products];
 
-  // Search by name or description
   if (q) {
     const query = q.toLowerCase();
     filteredProducts = filteredProducts.filter(
@@ -61,14 +105,12 @@ router.get('/search', (req, res) => {
     );
   }
 
-  // Filter by category
   if (category) {
     filteredProducts = filteredProducts.filter(
       product => product.category.toLowerCase() === category.toLowerCase()
     );
   }
 
-  // Filter by price range
   if (minPrice) {
     filteredProducts = filteredProducts.filter(
       product => product.price >= parseFloat(minPrice)
@@ -80,23 +122,34 @@ router.get('/search', (req, res) => {
     );
   }
 
-  // Pagination
   const startIndex = (page - 1) * limit;
   const endIndex = startIndex + parseInt(limit);
   const paginatedProducts = filteredProducts.slice(startIndex, endIndex);
 
-  res.json({
+  const data = {
     success: true,
     count: paginatedProducts.length,
     total: filteredProducts.length,
     page: parseInt(page),
     totalPages: Math.ceil(filteredProducts.length / parseInt(limit)),
     data: paginatedProducts
-  });
+  };
+
+  console.log('[catalog] Caching key', cacheKey);
+  const resultSearch = await cache.set(cacheKey, data, CACHE_TTL);
+  console.log('[catalog] Cache set result for search:', resultSearch);
+  res.json(data);
 });
 
-// GET single product by ID
-router.get('/:id', (req, res) => {
+router.get('/:id', async (req, res) => {
+  const { id } = req.params;
+  const cacheKey = `product:${id}`;
+  const cached = await cache.get(cacheKey);
+
+  if (cached) {
+    return res.json({ ...cached, cached: true });
+  }
+
   const product = products.find(p => p.id === req.params.id);
 
   if (!product) {
@@ -106,10 +159,15 @@ router.get('/:id', (req, res) => {
     });
   }
 
-  res.json({
+  const data = {
     success: true,
     data: product
-  });
+  };
+
+  console.log('[catalog] Caching key', cacheKey);
+  const resultProduct = await cache.set(cacheKey, data, CACHE_TTL);
+  console.log('[catalog] Cache set result for product id:', resultProduct);
+  res.json(data);
 });
 
 module.exports = router;

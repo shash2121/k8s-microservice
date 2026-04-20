@@ -1,20 +1,55 @@
 const express = require('express');
 const router = express.Router();
 const { Cart } = require('../models/Cart');
+const { cache } = require('../config/redis');
 
-// In-memory cart storage (keyed by userId)
-const carts = new Map();
+const CART_TTL = 1800;
 
-// GET cart for user
-router.get('/:userId', (req, res) => {
+function createCart(userId, data = null) {
+  const { CartItem } = require('../models/Cart');
+  const cart = new Cart(userId);
+  if (data) {
+    // Recreate CartItem instances to retain methods
+    cart.items = (data.items || []).map(item => {
+      const ci = new CartItem();
+      // copy properties
+      Object.assign(ci, item);
+      return ci;
+    });
+    cart.id = data.id || cart.id;
+    cart.createdAt = data.createdAt || cart.createdAt;
+    cart.updatedAt = data.updatedAt || cart.updatedAt;
+  }
+  return cart;
+}
+
+async function getCart(userId) {
+  const cached = await cache.get(`cart:${userId}`);
+  if (cached) {
+    return createCart(userId, cached);
+  }
+  return createCart(userId);
+}
+
+async function saveCart(userId, cart) {
+  console.log('[cart] Saving cart to Redis key', `cart:${userId}`);
+  const result = await cache.set(`cart:${userId}`, {
+    id: cart.id,
+    userId: cart.userId,
+    items: cart.items,
+    totalItems: cart.totalItems,
+    totalPrice: cart.totalPrice,
+    createdAt: cart.createdAt,
+    updatedAt: cart.updatedAt
+  }, CART_TTL);
+  console.log('[cart] Redis set result:', result);
+}
+
+router.get('/:userId', async (req, res) => {
   const { userId } = req.params;
   console.log('GET cart for userId:', userId);
-  let cart = carts.get(userId);
-
-  if (!cart) {
-    cart = new Cart(userId);
-    carts.set(userId, cart);
-  }
+  
+  let cart = await getCart(userId);
 
   console.log('Cart items:', cart.items.length, 'Total:', cart.totalPrice);
   res.json({
@@ -31,8 +66,7 @@ router.get('/:userId', (req, res) => {
   });
 });
 
-// POST add item to cart
-router.post('/:userId/items', (req, res) => {
+router.post('/:userId/items', async (req, res) => {
   const { userId } = req.params;
   const { productId, name, price, image, quantity = 1 } = req.body;
 
@@ -45,13 +79,9 @@ router.post('/:userId/items', (req, res) => {
     });
   }
 
-  let cart = carts.get(userId);
-  if (!cart) {
-    cart = new Cart(userId);
-    carts.set(userId, cart);
-  }
-
+  let cart = await getCart(userId);
   cart.addItem({ id: productId, name, price, image }, quantity);
+  await saveCart(userId, cart);
 
   console.log('Cart after add:', cart.items.length, 'items, Total:', cart.totalPrice);
 
@@ -70,13 +100,12 @@ router.post('/:userId/items', (req, res) => {
   });
 });
 
-// PUT update item quantity
-router.put('/:userId/items/:itemId', (req, res) => {
+router.put('/:userId/items/:itemId', async (req, res) => {
   const { userId, itemId } = req.params;
   const { quantity } = req.body;
 
-  const cart = carts.get(userId);
-  if (!cart) {
+  let cart = await getCart(userId);
+  if (!cart || cart.items.length === 0) {
     return res.status(404).json({
       success: false,
       error: 'Cart not found'
@@ -84,6 +113,7 @@ router.put('/:userId/items/:itemId', (req, res) => {
   }
 
   cart.updateItemQuantity(itemId, quantity);
+  await saveCart(userId, cart);
 
   res.json({
     success: true,
@@ -96,12 +126,11 @@ router.put('/:userId/items/:itemId', (req, res) => {
   });
 });
 
-// DELETE remove item from cart
-router.delete('/:userId/items/:itemId', (req, res) => {
+router.delete('/:userId/items/:itemId', async (req, res) => {
   const { userId, itemId } = req.params;
 
-  const cart = carts.get(userId);
-  if (!cart) {
+  let cart = await getCart(userId);
+  if (!cart || cart.items.length === 0) {
     return res.status(404).json({
       success: false,
       error: 'Cart not found'
@@ -109,6 +138,7 @@ router.delete('/:userId/items/:itemId', (req, res) => {
   }
 
   cart.removeItem(itemId);
+  await saveCart(userId, cart);
 
   res.json({
     success: true,
@@ -121,27 +151,20 @@ router.delete('/:userId/items/:itemId', (req, res) => {
   });
 });
 
-// DELETE clear cart
-router.delete('/:userId', (req, res) => {
+router.delete('/:userId', async (req, res) => {
   const { userId } = req.params;
 
-  const cart = carts.get(userId);
-  if (!cart) {
-    return res.status(404).json({
-      success: false,
-      error: 'Cart not found'
-    });
-  }
-
-  cart.clear();
+  await cache.del(`cart:${userId}`);
 
   res.json({
     success: true,
     message: 'Cart cleared',
     data: {
-      ...cart,
-      totalItems: cart.totalItems,
-      totalPrice: cart.totalPrice
+      id: null,
+      userId: userId,
+      items: [],
+      totalItems: 0,
+      totalPrice: 0
     }
   });
 });

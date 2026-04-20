@@ -1,32 +1,39 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 
 const productRoutes = require('./routes/products');
+const { cache } = require('./config/redis');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Kubernetes service URLs
-const LANDING_SERVICE_URL = process.env.LANDING_SERVICE_URL || 'http://landing-service:3000';
-const CART_SERVICE_URL = process.env.CART_SERVICE_URL || 'http://cart-service:3002';
-const CHECKOUT_SERVICE_URL = process.env.CHECKOUT_SERVICE_URL || 'http://checkout-service:3003';
-
 console.log('Loading product routes...');
-console.log(`Landing Service URL: ${LANDING_SERVICE_URL}`);
-console.log(`Cart Service URL: ${CART_SERVICE_URL}`);
-console.log(`Checkout Service URL: ${CHECKOUT_SERVICE_URL}`);
+
+async function connectRedis() {
+  try {
+    await cache.connect();
+    console.log('✅ Redis connected');
+  } catch (err) {
+    console.warn('⚠️ Redis connection failed, continuing without cache:', err.message);
+  }
+}
+
+connectRedis();
 
 // Middleware
-app.use(cors({
-  origin: [
-    process.env.ALLOWED_ORIGINS || '*',
-    LANDING_SERVICE_URL,
-    CART_SERVICE_URL,
-    CHECKOUT_SERVICE_URL
-  ].filter(Boolean)
-}));
+app.use(cors());
 app.use(express.json());
+
+// Serve static assets from the public folder (one level up from src)
+const publicDir = path.join(__dirname, '..', 'public');
+app.use(express.static(publicDir));
+
+// Root route – serve index.html explicitly
+app.get('/', (req, res) => {
+  res.sendFile('index.html', { root: publicDir });
+});
 
 // Health check endpoint
 app.get('/health', (req, res) => {
@@ -37,18 +44,15 @@ app.get('/health', (req, res) => {
   });
 });
 
-// API Routes
+// API routes – placed after static so UI is served for root
 app.use('/api/products', productRoutes);
 
-// Static files
-app.use(express.static('public'));
-
-// Root endpoint
-app.get('/', (req, res) => {
-  res.sendFile('index.html', { root: 'public' });
+// Fallback to index.html for any other route (SPA support)
+app.get('*', (req, res) => {
+  res.sendFile('index.html', { root: publicDir });
 });
 
-// 404 handler
+// 404 handler for API routes (won't be reached for SPA fallback)
 app.use((req, res) => {
   res.status(404).json({
     error: 'Not Found',
@@ -69,6 +73,7 @@ app.use((err, req, res, next) => {
 app.listen(PORT, () => {
   console.log(`Catalog Service running on port ${PORT}`);
   console.log(`Health check: http://localhost:${PORT}/health`);
+  console.log(`API endpoints: http://localhost:${PORT}/api/products`);
 });
 
 module.exports = app;

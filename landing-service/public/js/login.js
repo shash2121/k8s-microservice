@@ -1,18 +1,8 @@
-// Kubernetes service URLs - injected via ConfigMap
-const API_BASE = window.APP_CONFIG?.API_BASE || '/api/auth';
-const CATALOG_URL = window.APP_CONFIG?.CATALOG_URL || '/';
+const API_BASE = 'http://localhost:3000/api/auth';
+const CATALOG_URL = 'http://localhost:3001';
 
-// For Kubernetes, we use relative paths since all services are accessed through the Ingress
-// The Ingress will route /api/auth to landing-service, /api/products to catalog-service, etc.
-
-document.addEventListener('DOMContentLoaded', () => {
-  // Check if already logged in
-  const token = localStorage.getItem('shophub_token');
-  if (token) {
-    // Redirect to catalog - Ingress will handle routing
-    window.location.href = CATALOG_URL;
-  }
-});
+// Don't redirect on page load - let user see the login form
+// Only redirect after successful login
 
 document.getElementById('loginForm').addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -36,9 +26,13 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
     const result = await response.json();
 
     if (result.success) {
-      // Store token and user info
+      // Store token and user info in localStorage
       localStorage.setItem('shophub_token', result.data.token);
       localStorage.setItem('shophub_user', JSON.stringify(result.data.user));
+      // Also set a cookie so other origins (e.g., checkout-service) can access it
+      // Store token in a cookie accessible across all ports on localhost (no domain attribute for broader scope)
+      // Set a simple cookie accessible on all localhost ports (no SameSite or Secure flags for http)
+      document.cookie = `shophub_token=${result.data.token}; path=/`;
 
       // Generate and store userId for cart service
       let userId = localStorage.getItem('shophub_userId');
@@ -47,7 +41,7 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
         localStorage.setItem('shophub_userId', userId);
       }
 
-      // Redirect to catalog - Ingress will handle routing
+      // Redirect to catalog
       window.location.href = CATALOG_URL;
     } else {
       errorMessage.textContent = result.error || 'Login failed';

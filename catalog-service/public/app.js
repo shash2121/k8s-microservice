@@ -1,8 +1,6 @@
-// Kubernetes service URLs - using relative paths through Ingress
-// All API calls go through the Ingress which routes to appropriate services
-const API_BASE = window.APP_CONFIG?.API_BASE || '/api/products';
-const CART_API_BASE = window.APP_CONFIG?.CART_API_BASE || '/api/cart';
-const LANDING_URL = window.APP_CONFIG?.LANDING_URL || '/';
+const API_BASE = '/api/products';
+const CART_API_BASE = 'http://localhost:3002/api/cart';
+const LANDING_URL = 'http://localhost:3000';
 
 // Get userId from localStorage (shared with cart service)
 let USER_ID = localStorage.getItem('shophub_userId');
@@ -38,7 +36,7 @@ const cartCountEl = document.getElementById('cartCount');
 const userInfoEl = document.getElementById('userInfo');
 const logoutBtn = document.getElementById('logoutBtn');
 
-// Initialize - NO redirect check (let user browse)
+// Initialize - NO redirect check
 document.addEventListener('DOMContentLoaded', () => {
   loadProducts();
   setupEventListeners();
@@ -57,8 +55,11 @@ function displayUserInfo() {
 function updateCartLink() {
   const cartIcon = document.getElementById('cartIcon');
   if (cartIcon) {
-    // Use relative path - Ingress will route to cart service
-    cartIcon.href = `/cart?userId=${USER_ID}`;
+    cartIcon.href = `http://localhost:3002?userId=${USER_ID}`;
+  }
+  const ordersLink = document.getElementById('ordersLink');
+  if (ordersLink) {
+    ordersLink.href = `http://localhost:3003/orders?userId=${USER_ID}`;
   }
 }
 
@@ -84,7 +85,7 @@ function setupEventListeners() {
   });
 
   applyPriceBtn.addEventListener('click', handlePriceFilter);
-
+  
   retryBtn.addEventListener('click', () => {
     error.classList.add('hidden');
     loadProducts();
@@ -118,22 +119,22 @@ function handlePriceFilter() {
 
 async function loadProducts() {
   showLoading();
-
+  
   try {
     let url = `${API_BASE}/search?page=${currentPage}&limit=12`;
-
+    
     if (currentCategory !== 'all') {
       url += `&category=${encodeURIComponent(currentCategory)}`;
     }
-
+    
     if (currentSearch) {
       url += `&q=${encodeURIComponent(currentSearch)}`;
     }
-
+    
     if (minPrice) {
       url += `&minPrice=${minPrice}`;
     }
-
+    
     if (maxPrice) {
       url += `&maxPrice=${maxPrice}`;
     }
@@ -141,7 +142,7 @@ async function loadProducts() {
     console.log('Fetching:', url);
     const response = await fetch(url);
     console.log('Response status:', response.status);
-
+    
     if (!response.ok) {
       const errorText = await response.text();
       console.error('Response error:', errorText);
@@ -190,11 +191,11 @@ function createProductCard(product) {
   const stockStatus = getStockStatus(product.stock);
   const stars = getStarRating(product.rating);
 
-  // Convert price to INR (1 USD = 83 INR approximately)
-  const priceInINR = Math.round(product.price * 83);
+  // Use price directly in INR
+  const priceInINR = product.price;
 
   card.innerHTML = `
-    <img src="${product.image}" alt="${product.name}" class="product-image" onerror="this.src='https://via.placeholder.com/300x220?text=No+Image'">
+    <img src="${product.image}" alt="${product.name}" class="product-image" onerror="this.onerror=null;this.src='https://via.placeholder.com/300x220?text=No+Image';">
     <div class="product-info">
       <span class="product-category">${product.category}</span>
       <h3 class="product-name">${product.name}</h3>
@@ -227,26 +228,26 @@ function getStarRating(rating) {
   const fullStars = Math.floor(rating);
   const hasHalfStar = rating % 1 >= 0.5;
   let stars = '';
-
+  
   for (let i = 0; i < fullStars; i++) {
     stars += '★';
   }
-
+  
   if (hasHalfStar) {
     stars += '½';
   }
-
+  
   const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
   for (let i = 0; i < emptyStars; i++) {
     stars += '☆';
   }
-
+  
   return stars + ` ${rating.toFixed(1)}`;
 }
 
 function updateCount(count, total) {
   productsCount.textContent = `${total} item${total !== 1 ? 's' : ''}`;
-
+  
   if (currentCategory !== 'all') {
     productsTitle.textContent = currentCategory;
   } else if (currentSearch) {
@@ -262,7 +263,7 @@ function updatePagination(page, totalPages) {
   pageInfo.textContent = `Page ${page} of ${totalPages}`;
   prevPageBtn.disabled = page <= 1;
   nextPageBtn.disabled = page >= totalPages;
-
+  
   if (totalPages <= 1) {
     pagination.classList.add('hidden');
   } else {
@@ -291,14 +292,14 @@ async function loadCartCount() {
   try {
     console.log('Loading cart count for USER_ID:', USER_ID);
     const response = await fetch(`${CART_API_BASE}/${USER_ID}`);
-
+    
     if (!response.ok) {
       throw new Error('Failed to load cart');
     }
 
     const result = await response.json();
     console.log('Cart count result:', result);
-
+    
     if (result.success) {
       updateCartCount(result.data.totalItems);
     }
@@ -315,21 +316,21 @@ function updateCartCount(count) {
 
 async function addToCart(event, button) {
   event.stopPropagation();
-
+  
   const productData = button.dataset.product;
-
+  
   console.log('addToCart called');
   console.log('USER_ID:', USER_ID);
   console.log('productData:', productData);
-
+  
   if (!productData) {
     console.error('No product data found');
     return;
   }
-
+  
   const product = JSON.parse(productData.replace(/&apos;/g, "'"));
   console.log('Parsed product:', product);
-
+  
   const btnOriginalText = button.textContent;
   button.textContent = 'Adding...';
   button.disabled = true;
@@ -364,12 +365,12 @@ async function addToCart(event, button) {
 
     const result = await response.json();
     console.log('Cart API result:', result);
-
+    
     if (result.success) {
       updateCartCount(result.data.totalItems);
       button.textContent = 'Added!';
       button.style.background = '#10b981';
-
+      
       setTimeout(() => {
         button.textContent = btnOriginalText;
         button.disabled = false;

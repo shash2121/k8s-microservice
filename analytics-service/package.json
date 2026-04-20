@@ -1,0 +1,13 @@
+{
+  "name": "analytics-service",
+  "version": "1.0.0",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "dependencies": {
+    "amqplib": "^0.10.3",
+    "mysql2": "^3.9.1",
+    "winston": "^3.13.0"
+  }
+}

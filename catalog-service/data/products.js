@@ -27,7 +27,7 @@ const products = [
     'High-capacity portable charger with fast charging support',
     45.99,
     'Electronics',
-    'https://images.unsplash.com/photo-1609599006353-e629aaabfeae?w=500',
+    'https://images.unsplash.com/photo-1706275399494-fb26bbc5da63?q=80&w=2656&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
     200,
     4.3,
     189
@@ -49,17 +49,17 @@ const products = [
     'Comfortable 100% cotton t-shirt available in multiple colors',
     24.99,
     'Clothing',
-    'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500',
+    'https://plus.unsplash.com/premium_photo-1673356301514-2cad91907f74?q=80&w=987&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
     500,
     4.2,
     892
   ),
   new Product(
-    'Slim Fit Jeans',
-    'Modern slim fit denim jeans with stretch comfort',
+    'Jeans',
+    'Denim jeans with stretch comfort',
     59.99,
     'Clothing',
-    'https://images.unsplash.com/photo-1542272454315-4c01d7abdf4a?w=500',
+    'https://plus.unsplash.com/premium_photo-1674828600712-7d0caab39109?q=80&w=1008&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
     250,
     4.6,
     445
@@ -91,7 +91,7 @@ const products = [
     '10-piece professional cookware set with non-stick coating',
     149.99,
     'Home & Kitchen',
-    'https://images.unsplash.com/photo-1584992236310-6eddd7e4a5e7?w=500',
+    'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=500',
     85,
     4.7,
     234
@@ -101,7 +101,7 @@ const products = [
     'Adjustable LED lamp with multiple brightness levels and USB charging port',
     39.99,
     'Home & Kitchen',
-    'https://images.unsplash.com/photo-1534073828943-f801091a7d58?w=500',
+    'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=500',
     120,
     4.4,
     167
@@ -111,17 +111,17 @@ const products = [
     'Programmable coffee maker with thermal carafe',
     79.99,
     'Home & Kitchen',
-    'https://images.unsplash.com/photo-1517668808822-9ebb02f2a0e6?w=500',
+    'https://images.unsplash.com/photo-1608354580875-30bd4168b351?q=80&w=987&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
     95,
     4.6,
     412
   ),
   new Product(
-    'Vacuum Cleaner Robot',
+    'Vacuum Cleaner',
     'Smart robotic vacuum with app control and auto-charging',
     249.99,
     'Home & Kitchen',
-    'https://images.unsplash.com/photo-1518640467707-6811f4a6ab73?w=500',
+    'https://images.unsplash.com/photo-1722710070534-e31f0290d8de?q=80&w=1035&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
     50,
     4.3,
     289
@@ -153,7 +153,7 @@ const products = [
     'Complete guide to digital marketing strategies and tactics',
     39.99,
     'Books',
-    'https://images.unsplash.com/photo-1461749280684-dcc64fa648e3?w=500',
+    'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=500',
     180,
     4.6,
     423
@@ -191,11 +191,11 @@ const products = [
     156
   ),
   new Product(
-    'Fitness Resistance Bands Set',
-    '5-piece resistance band set with different strength levels',
-    19.99,
+    'Whey Protein',
+    'Isolate Whey protein',
+    30.99,
     'Sports & Outdoors',
-    'https://images.unsplash.com/photo-1598289431512-b97b0917affc?w=500',
+    'https://images.unsplash.com/photo-1693996045899-7cf0ac0229c7?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
     400,
     4.4,
     512

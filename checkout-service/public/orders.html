@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Orders - ShopHub</title>
+  <link rel="stylesheet" href="/css/orders.css">
+</head>
+<body>
+  <header class="header">
+    <div class="container">
+      <a href="http://localhost:3001" class="logo">🛒 ShopHub</a>
+      <nav class="nav">
+        <a href="http://localhost:3001" class="nav-link">Catalog</a>
+        <a href="http://localhost:3002" class="nav-link">Cart</a>
+        <a href="/orders" class="nav-link active">My Orders</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="container">
+      <div class="page-header">
+        <h1 class="page-title">My Orders</h1>
+        <div class="user-info-display">
+          <span class="user-id-display">User ID: <span id="currentUserId"></span></span>
+          <span class="user-id-display">Name: <span id="currentUserName"></span></span>
+          <span class="user-id-display">Email: <span id="currentUserEmail"></span></span>
+        </div>
+      </div>
+
+      <div id="loading" class="loading">
+        <div class="spinner"></div>
+        <p>Loading your orders...</p>
+      </div>
+
+      <div id="noOrders" class="no-orders hidden">
+        <div class="no-orders-icon">📦</div>
+        <h2>No orders yet</h2>
+        <p>You haven't placed any orders yet. Start shopping to see your orders here.</p>
+        <a href="http://localhost:3001" class="btn btn-primary">Start Shopping</a>
+      </div>
+
+      <div id="ordersList" class="orders-list hidden">
+        <!-- Orders will be loaded here -->
+      </div>
+    </div>
+  </main>
+
+  <!-- Order Detail Modal -->
+  <div id="orderModal" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Order Details</h2>
+        <button id="closeModal" class="close-btn">&times;</button>
+      </div>
+      <div id="modalBody" class="modal-body">
+        <!-- Order details will be loaded here -->
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="container">
+      <p>&copy; 2026 ShopHub. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="/js/orders.js"></script>
+</body>
+</html>

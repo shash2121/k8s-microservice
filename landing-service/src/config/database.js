@@ -44,7 +44,7 @@ async function execute(query, params) {
     return await pool.execute(query, params);
   } catch (error) {
     console.error('Database query error:', error.message);
-    return [[], []];
+    throw error;
   }
 }
 
@@ -52,6 +52,9 @@ async function execute(query, params) {
 async function testConnection() {
   return await initDatabase();
 }
+
+// Auto-initialize on module load
+initDatabase();
 
 module.exports = { 
   getPool: () => pool,

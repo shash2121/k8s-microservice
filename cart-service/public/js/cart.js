@@ -39,6 +39,13 @@ document.addEventListener('DOMContentLoaded', () => {
   console.log('localStorage keys:', Object.keys(localStorage));
   console.log('shophub_userId from storage:', localStorage.getItem('shophub_userId'));
   console.log('USER_ID being used:', USER_ID);
+
+  // Update orders link with userId
+  const ordersLink = document.getElementById('ordersLink');
+  if (ordersLink) {
+    ordersLink.href = `http://localhost:3003/orders?userId=${USER_ID}`;
+  }
+
   loadCart();
   setupEventListeners();
 });
@@ -112,8 +119,8 @@ function createCartItemElement(item) {
   div.className = 'cart-item';
   div.dataset.itemId = item.id;
 
-  // Convert price to INR
-  const priceInINR = Math.round(item.price * 83);
+  // Use price directly in INR
+  const priceInINR = item.price;
 
   div.innerHTML = `
     <img src="${item.image}" alt="${item.name}" class="cart-item-image" onerror="this.src='https://via.placeholder.com/100x100?text=No+Image'">
@@ -135,10 +142,9 @@ function createCartItemElement(item) {
 }
 
 function updateSummary() {
-  // Convert USD to INR (1 USD = 83 INR)
-  const usdToInr = 83;
-  const subtotal = cart.totalPrice * usdToInr;
-  const shipping = subtotal > 8300 ? 0 : 830; // Free shipping over ₹8300 (₹100 equivalent)
+  // Use prices directly in INR
+  const subtotal = cart.totalPrice;
+  const shipping = subtotal > 8300 ? 0 : 830; // Free shipping over ₹8300
   const tax = subtotal * 0.1; // 10% tax
   const total = subtotal + shipping + tax;
 

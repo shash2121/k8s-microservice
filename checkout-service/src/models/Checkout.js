@@ -1,5 +1,6 @@
 const { v4: uuidv4 } = require('uuid');
 const { saveOrderToDB } = require('../config/database');
+const logger = require('../logger');
 
 class CheckoutItem {
   constructor(productId, name, price, image, quantity = 1) {
@@ -53,12 +54,23 @@ class CheckoutSession {
     }
 
     this.updatedAt = new Date().toISOString();
+    logger.debug('Item added to checkout session', {
+      sessionId: this.id,
+      userId: this.userId,
+      productId: product.id,
+      quantity
+    });
     return this;
   }
 
   removeItem(itemId) {
     this.items = this.items.filter(item => item.id !== itemId);
     this.updatedAt = new Date().toISOString();
+    logger.debug('Item removed from checkout session', {
+      sessionId: this.id,
+      userId: this.userId,
+      itemId
+    });
     return this;
   }
 
@@ -70,6 +82,12 @@ class CheckoutSession {
       } else {
         item.quantity = quantity;
         this.updatedAt = new Date().toISOString();
+        logger.debug('Item quantity updated in checkout session', {
+          sessionId: this.id,
+          userId: this.userId,
+          itemId,
+          quantity
+        });
       }
     }
     return this;
@@ -95,9 +113,20 @@ class CheckoutSession {
       }
 
       this.updatedAt = new Date().toISOString();
+      logger.debug('Discount applied to checkout session', {
+        sessionId: this.id,
+        userId: this.userId,
+        code,
+        discountAmount: this.discount
+      });
       return { success: true, discount: this.discount };
     }
 
+    logger.warn('Invalid discount code attempted', {
+      sessionId: this.id,
+      userId: this.userId,
+      code
+    });
     return { success: false, error: 'Invalid discount code' };
   }
 
@@ -112,6 +141,13 @@ class CheckoutSession {
 
     this.shippingAddress = address;
     this.updatedAt = new Date().toISOString();
+    logger.debug('Shipping cost calculated', {
+      sessionId: this.id,
+      userId: this.userId,
+      shippingCost: this.shippingCost,
+      subtotal: this.subtotal,
+      discount: this.discount
+    });
     return this.shippingCost;
   }
 
@@ -141,9 +177,20 @@ class CheckoutSession {
       this.paymentStatus = 'completed';
       this.status = 'completed';
       this.completedAt = new Date().toISOString();
+      logger.info('Payment processed successfully', {
+        sessionId: this.id,
+        userId: this.userId,
+        paymentMethod,
+        transactionId: uuidv4()
+      });
       return { success: true, transactionId: uuidv4() };
     } else {
       this.paymentStatus = 'failed';
+      logger.warn('Payment failed', {
+        sessionId: this.id,
+        userId: this.userId,
+        paymentMethod
+      });
       return { success: false, error: 'Payment failed' };
     }
   }
@@ -162,7 +209,8 @@ class CheckoutSession {
         name: item.name,
         price: item.price,
         quantity: item.quantity,
-        subtotal: item.subtotal
+        subtotal: item.subtotal,
+        image: item.image
       })),
       pricing: {
         subtotal: this.subtotal,
@@ -188,6 +236,12 @@ class CheckoutSession {
     }
 
     const order = this.toOrder();
+    logger.info('Saving order to database', {
+      sessionId: this.id,
+      userId: this.userId,
+      orderId: order.orderId,
+      itemCount: order.items.length
+    });
     return await saveOrderToDB(order);
   }
 
@@ -201,6 +255,10 @@ class CheckoutSession {
     this.paymentStatus = 'pending';
     this.status = 'pending';
     this.updatedAt = new Date().toISOString();
+    logger.debug('Checkout session cleared', {
+      sessionId: this.id,
+      userId: this.userId
+    });
     return this;
   }
 }

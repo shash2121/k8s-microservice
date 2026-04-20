@@ -51,6 +51,23 @@ body {
   text-decoration: none;
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.orders-link {
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+  transition: opacity 0.2s;
+}
+
+.orders-link:hover {
+  opacity: 0.8;
+}
+
 .cart-total {
   background: rgba(255, 255, 255, 0.2);
   padding: 8px 16px;

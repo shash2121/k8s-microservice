@@ -3,23 +3,25 @@ const express = require('express');
 const cors = require('cors');
 
 const cartRoutes = require('./routes/cart');
+const { cache } = require('./config/redis');
 
 const app = express();
 const PORT = process.env.PORT || 3002;
 
-// Kubernetes service URLs
-const LANDING_SERVICE_URL = process.env.LANDING_SERVICE_URL || 'http://landing-service:3000';
-const CATALOG_SERVICE_URL = process.env.CATALOG_SERVICE_URL || 'http://catalog-service:3001';
-const CHECKOUT_SERVICE_URL = process.env.CHECKOUT_SERVICE_URL || 'http://checkout-service:3003';
+async function connectRedis() {
+  try {
+    await cache.connect();
+    console.log('✅ Redis connected');
+  } catch (err) {
+    console.warn('⚠️ Redis connection failed, continuing without cache:', err.message);
+  }
+}
+
+connectRedis();
 
 // Middleware
 app.use(cors({
-  origin: [
-    process.env.ALLOWED_ORIGINS || '*',
-    LANDING_SERVICE_URL,
-    CATALOG_SERVICE_URL,
-    CHECKOUT_SERVICE_URL
-  ].filter(Boolean),
+  origin: '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
@@ -72,9 +74,7 @@ app.use((err, req, res, next) => {
 app.listen(PORT, () => {
   console.log(`Cart Service running on port ${PORT}`);
   console.log(`Health check: http://localhost:${PORT}/health`);
-  console.log(`Landing Service URL: ${LANDING_SERVICE_URL}`);
-  console.log(`Catalog Service URL: ${CATALOG_SERVICE_URL}`);
-  console.log(`Checkout Service URL: ${CHECKOUT_SERVICE_URL}`);
+  console.log(`API endpoints: http://localhost:${PORT}/api/cart`);
 });
 
 module.exports = app;

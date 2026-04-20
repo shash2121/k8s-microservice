@@ -2,25 +2,26 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const { testConnection } = require('./config/database');
+const { cache } = require('./config/redis');
+const logger = require('./logger');
 
 const checkoutRoutes = require('./routes/checkout');
 
 const app = express();
 const PORT = process.env.PORT || 3003;
 
-// Kubernetes service URLs
-const LANDING_SERVICE_URL = process.env.LANDING_SERVICE_URL || 'http://landing-service:3000';
-const CATALOG_SERVICE_URL = process.env.CATALOG_SERVICE_URL || 'http://catalog-service:3001';
-const CART_SERVICE_URL = process.env.CART_SERVICE_URL || 'http://cart-service:3002';
+async function connectRedis() {
+  try {
+    await cache.connect();
+    logger.info('Redis connected');
+  } catch (err) {
+    logger.warn('Redis connection failed, continuing without cache', { error: err.message });
+  }
+}
 
 // Middleware
 app.use(cors({
-  origin: [
-    process.env.ALLOWED_ORIGINS || '*',
-    LANDING_SERVICE_URL,
-    CATALOG_SERVICE_URL,
-    CART_SERVICE_URL
-  ].filter(Boolean),
+  origin: '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
@@ -28,7 +29,11 @@ app.use(express.json());
 
 // Debug middleware
 app.use((req, res, next) => {
-  console.log(`${req.method} ${req.path} from ${req.ip}`);
+  logger.info(`${req.method} ${req.path} from ${req.ip}`, {
+    method: req.method,
+    path: req.path,
+    ip: req.ip
+  });
   next();
 });
 
@@ -43,6 +48,9 @@ app.get('/health', (req, res) => {
 
 // API Routes
 app.use('/api/checkout', checkoutRoutes);
+app.use('/order', (req, res) => {
+  res.sendFile('orders.html', { root: 'public' });
+});
 
 // Static files
 app.use(express.static('public'));
@@ -52,8 +60,18 @@ app.get('/', (req, res) => {
   res.sendFile('checkout.html', { root: 'public' });
 });
 
+// Orders page
+app.get('/orders', (req, res) => {
+  res.sendFile('orders.html', { root: 'public' });
+});
+
 // 404 handler
 app.use((req, res) => {
+  logger.warn('Route not found', {
+    method: req.method,
+    path: req.path,
+    ip: req.ip
+  });
   res.status(404).json({
     error: 'Not Found',
     message: `Route ${req.method} ${req.path} not found`
@@ -62,7 +80,12 @@ app.use((req, res) => {
 
 // Error handler
 app.use((err, req, res, next) => {
-  console.error(err.stack);
+  logger.error('Internal Server Error', {
+    error: err.message,
+    stack: err.stack,
+    method: req.method,
+    path: req.path
+  });
   res.status(500).json({
     error: 'Internal Server Error',
     message: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong'
@@ -72,14 +95,18 @@ app.use((err, req, res, next) => {
 // Start server
 async function startServer() {
   // Test database connection
+  logger.info('Testing database connection');
   await testConnection();
-
+  
+  // Connect to Redis
+  await connectRedis();
+  
   app.listen(PORT, () => {
-    console.log(`Checkout Service running on port ${PORT}`);
-    console.log(`Health check: http://localhost:${PORT}/health`);
-    console.log(`Landing Service URL: ${LANDING_SERVICE_URL}`);
-    console.log(`Catalog Service URL: ${CATALOG_SERVICE_URL}`);
-    console.log(`Cart Service URL: ${CART_SERVICE_URL}`);
+    logger.info(`Checkout Service running on port ${PORT}`, {
+      port: PORT,
+      healthCheck: `http://localhost:${PORT}/health`,
+      apiEndpoints: `http://localhost:${PORT}/api/checkout`
+    });
   });
 }
 

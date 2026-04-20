@@ -9,19 +9,9 @@ const authRoutes = require('./routes/auth');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Kubernetes service URLs
-const CATALOG_SERVICE_URL = process.env.CATALOG_SERVICE_URL || 'http://catalog-service:3001';
-const CART_SERVICE_URL = process.env.CART_SERVICE_URL || 'http://cart-service:3002';
-const CHECKOUT_SERVICE_URL = process.env.CHECKOUT_SERVICE_URL || 'http://checkout-service:3003';
-
 // Middleware
 app.use(cors({
-  origin: [
-    process.env.ALLOWED_ORIGINS || '*',
-    CATALOG_SERVICE_URL,
-    CART_SERVICE_URL,
-    CHECKOUT_SERVICE_URL
-  ].filter(Boolean),
+  origin: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002', 'http://localhost:3003'],
   credentials: true
 }));
 app.use(express.json());
@@ -33,7 +23,7 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: process.env.NODE_ENV === 'production',
+    secure: false, // Set to true in production with HTTPS
     httpOnly: true,
     maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
   }
@@ -96,13 +86,11 @@ app.use((err, req, res, next) => {
 async function startServer() {
   // Test database connection
   await testConnection();
-
+  
   app.listen(PORT, () => {
     console.log(`Landing Service running on port ${PORT}`);
     console.log(`Health check: http://localhost:${PORT}/health`);
-    console.log(`Catalog Service URL: ${CATALOG_SERVICE_URL}`);
-    console.log(`Cart Service URL: ${CART_SERVICE_URL}`);
-    console.log(`Checkout Service URL: ${CHECKOUT_SERVICE_URL}`);
+    console.log(`Landing page: http://localhost:${PORT}`);
   });
 }
 

@@ -17,6 +17,27 @@
   <main class="main">
     <div class="container">
       <h1 class="page-title">Checkout</h1>
+      
+      <!-- User Information Display -->
+      <div class="user-info-section">
+        <div class="user-info-card">
+          <h3>Current User</h3>
+          <div class="user-details">
+            <div class="user-detail">
+              <span class="label">User ID:</span>
+              <span class="value" id="displayUserId">Loading...</span>
+            </div>
+            <div class="user-detail">
+              <span class="label">Name:</span>
+              <span class="value" id="displayUserName">Not provided</span>
+            </div>
+            <div class="user-detail">
+              <span class="label">Email:</span>
+              <span class="value" id="displayUserEmail">Not provided</span>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <div id="loading" class="loading">
         <div class="spinner"></div>
@@ -34,51 +55,57 @@
         <div class="checkout-grid">
           <!-- Left Column - Forms -->
           <div class="checkout-forms">
-            <!-- Shipping Address Form -->
-            <div class="form-section">
-              <h2 class="section-title">1. Shipping Address</h2>
-              <form id="shippingForm" class="checkout-form">
-                <div class="form-row">
-                  <div class="form-group">
-                    <label for="customerName">Full Name *</label>
-                    <input type="text" id="customerName" required placeholder="John Doe">
+             <!-- Shipping Address Form -->
+             <div class="form-section">
+               <h2 class="section-title">1. Shipping Address</h2>
+               
+                <form id="shippingForm" class="checkout-form">
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label for="customerName">Full Name *</label>
+                      <input type="text" id="customerName" required placeholder="John Doe">
+                    </div>
+                    <div class="form-group">
+                      <label for="customerEmail">Email *</label>
+                      <input type="email" id="customerEmail" required placeholder="john@example.com">
+                    </div>
                   </div>
+                  
                   <div class="form-group">
-                    <label for="customerEmail">Email *</label>
-                    <input type="email" id="customerEmail" required placeholder="john@example.com">
+                    <label for="address">Address *</label>
+                    <textarea id="address" required placeholder="House no., Street, Area" rows="2"></textarea>
                   </div>
-                </div>
+                  
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label for="city">City *</label>
+                      <input type="text" id="city" required placeholder="Mumbai">
+                    </div>
+                    <div class="form-group">
+                      <label for="state">State *</label>
+                      <input type="text" id="state" required placeholder="Maharashtra">
+                    </div>
+                  </div>
+                  
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label for="pincode">Pincode *</label>
+                      <input type="text" id="pincode" required placeholder="400001" pattern="[0-9]{6}">
+                    </div>
+                    <div class="form-group">
+                      <label for="phone">Phone *</label>
+                      <input type="tel" id="phone" required placeholder="9876543210" pattern="[0-9]{10}">
+                    </div>
+                  </div>
+                  
+                  <div class="form-group checkbox-group">
+                    <input type="checkbox" id="saveAddressCheckbox">
+                    <label for="saveAddressCheckbox">Save this address for future use</label>
+                  </div>
+                  <button type="submit" class="btn btn-secondary">Save Address</button>
+                </form>
+             </div>
 
-                <div class="form-group">
-                  <label for="address">Address *</label>
-                  <textarea id="address" required placeholder="House no., Street, Area" rows="2"></textarea>
-                </div>
-
-                <div class="form-row">
-                  <div class="form-group">
-                    <label for="city">City *</label>
-                    <input type="text" id="city" required placeholder="Mumbai">
-                  </div>
-                  <div class="form-group">
-                    <label for="state">State *</label>
-                    <input type="text" id="state" required placeholder="Maharashtra">
-                  </div>
-                </div>
-
-                <div class="form-row">
-                  <div class="form-group">
-                    <label for="pincode">Pincode *</label>
-                    <input type="text" id="pincode" required placeholder="400001" pattern="[0-9]{6}">
-                  </div>
-                  <div class="form-group">
-                    <label for="phone">Phone *</label>
-                    <input type="tel" id="phone" required placeholder="9876543210" pattern="[0-9]{10}">
-                  </div>
-                </div>
-
-                <button type="submit" class="btn btn-secondary">Save Address</button>
-              </form>
-            </div>
 
             <!-- Payment Method -->
             <div class="form-section">
@@ -185,9 +212,21 @@
                 <span id="total">₹0</span>
               </div>
 
-              <button id="placeOrder" class="btn btn-primary btn-block btn-large">
-                Place Order
-              </button>
+                <button id="placeOrder" type="button" class="btn btn-primary btn-block btn-large">
+                  Place Order
+                </button>
+
+                 <!-- Confirmation Modal -->
+                 <div id="confirmModal" class="modal hidden">
+                   <div class="modal-content">
+                     <h3>Confirm Order</h3>
+                     <p>Are you sure you want to place this order?</p>
+           <div class="modal-actions">
+           <button id="confirmYes" class="btn btn-primary" type="button">Yes, place order</button>
+           <button id="confirmNo" class="btn btn-secondary" type="button">Cancel</button>
+         </div>
+                   </div>
+                 </div>
 
               <p class="terms-text">
                 By placing this order, you agree to our Terms of Service and Privacy Policy.
@@ -199,16 +238,18 @@
     </div>
   </main>
 
-  <!-- Order Success Modal -->
-  <div id="successModal" class="modal hidden">
+  <!-- Order Success Modal - Hidden by default -->
+  <div id="successModal" class="modal" style="display: none !important;">
     <div class="modal-content">
       <div class="success-icon">✓</div>
       <h2>Order Placed Successfully!</h2>
       <p>Your order has been confirmed. You will receive an email shortly.</p>
       <p><strong>Order ID:</strong> <span id="orderId"></span></p>
       <p><strong>Total Amount:</strong> <span id="orderTotal"></span></p>
+      <p><strong>User ID:</strong> <span id="orderUserId"></span></p>
       <div class="modal-actions">
         <a href="http://localhost:3001" class="btn btn-primary">Continue Shopping</a>
+        <a id="viewAllOrdersLink" href="/orders" class="btn btn-secondary">View All Orders</a>
         <button id="viewOrder" class="btn btn-secondary">View Order Details</button>
       </div>
     </div>

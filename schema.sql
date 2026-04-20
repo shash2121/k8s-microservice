@@ -15,6 +15,23 @@ CREATE TABLE users (
     INDEX idx_email (email)
 );
 
+-- User Addresses table - stores saved shipping addresses
+CREATE TABLE user_addresses (
+    address_id VARCHAR(36) PRIMARY KEY,
+    user_id VARCHAR(36) NOT NULL,
+    address_line1 VARCHAR(255) NOT NULL,
+    address_line2 VARCHAR(255),
+    city VARCHAR(100) NOT NULL,
+    state VARCHAR(100) NOT NULL,
+    zip_code VARCHAR(20) NOT NULL,
+    country VARCHAR(100) NOT NULL,
+    is_default BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    INDEX idx_user_id (user_id)
+);
+
 -- Orders table - stores order history
 CREATE TABLE orders (
     order_id VARCHAR(36) PRIMARY KEY,
@@ -43,6 +60,7 @@ CREATE TABLE order_items (
     price DECIMAL(10, 2) NOT NULL,
     quantity INT NOT NULL,
     subtotal DECIMAL(10, 2) NOT NULL,
+    image VARCHAR(500),
     INDEX idx_order_id (order_id),
     FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE
 );
