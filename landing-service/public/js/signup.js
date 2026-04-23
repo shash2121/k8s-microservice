@@ -1,4 +1,12 @@
-const API_BASE = 'http://localhost:3000/api/auth';
+let CATALOG_URL = '';
+// Load the catalog URL from the landing service config endpoint. If the request fails we fall back to the internal service URL.
+fetch('/config')
+  .then(r => r.json())
+  .then(cfg => { CATALOG_URL = cfg.CATALOG_URL; })
+  .catch(() => { CATALOG_URL = 'http://catalog-service:3001'; });
+
+// Use a relative path so the request works both locally and when the app is served from a Kubernetes pod.
+const API_BASE = '/api/auth';
 const LOGIN_URL = '/login';
 
 document.getElementById('signupForm').addEventListener('submit', async (e) => {
@@ -54,8 +62,9 @@ document.getElementById('signupForm').addEventListener('submit', async (e) => {
       successMessage.classList.add('show');
 
       // Redirect to catalog after short delay
+      // After a short pause, redirect the user to the catalog front‑end using the URL we fetched earlier.
       setTimeout(() => {
-        window.location.href = 'http://localhost:3001';
+        window.location.href = CATALOG_URL;
       }, 1500);
     } else {
       errorMessage.textContent = result.error || 'Registration failed';

@@ -42,11 +42,15 @@ app.get('/health', (req, res) => {
   });
 });
 
-// API Routes
+// API Routes – serve under both the raw path and the `/cart` prefix used by the ingress.
+// This ensures the UI works when accessed directly (e.g., http://localhost:3002/api/cart)
+// and when routed through an ingress that rewrites `/cart/...` to the service.
 app.use('/api/cart', cartRoutes);
+app.use('/cart/api/cart', cartRoutes);
 
-// Static files
+// Static files – similar dual‑prefix handling for assets referenced in the HTML.
 app.use(express.static('public'));
+app.use('/cart', express.static('public'));
 
 // Root endpoint
 app.get('/', (req, res) => {
@@ -73,8 +77,8 @@ app.use((err, req, res, next) => {
 // Start server
 app.listen(PORT, () => {
   console.log(`Cart Service running on port ${PORT}`);
-  console.log(`Health check: http://localhost:${PORT}/health`);
-  console.log(`API endpoints: http://localhost:${PORT}/api/cart`);
+  console.log(`Health check: http://cart-service:${PORT}/health`);
+  console.log(`API endpoints: http://cart-service:${PORT}/api/cart`);
 });
 
 module.exports = app;

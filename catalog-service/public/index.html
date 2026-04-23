@@ -4,12 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>E-Commerce Catalog</title>
-  <link rel="stylesheet" href="styles.css">
+  <!-- Asset URLs include the /catalog prefix so the Ingress rewrite strips it before reaching the service -->
+  <link rel="stylesheet" href="/catalog/styles.css">
 </head>
 <body>
   <header class="header">
     <div class="container">
-      <a href="http://localhost:3000" class="logo">🛒 ShopHub</a>
+      <!-- Use a relative link so it works whether the UI is accessed via localhost or through the Ingress -->
+      <a href="/" class="logo">🛒 ShopHub</a>
       <nav class="nav">
         <a href="#" class="nav-link active" data-category="all">All Products</a>
         <a href="#" class="nav-link" data-category="Electronics">Electronics</a>
@@ -21,8 +23,9 @@
       <div class="header-actions">
         <span class="user-info" id="userInfo"></span>
         <button id="logoutBtn" class="btn-logout">Logout</button>
-        <a href="http://localhost:3003/orders" id="ordersLink" class="nav-link-orders">📦 My Orders</a>
-        <a href="http://localhost:3002?userId=" id="cartIcon" class="cart-icon">
+        <!-- Use relative paths for cross‑service navigation; the Ingress will route them appropriately -->
+        <a href="/checkout/orders" id="ordersLink" class="nav-link-orders">📦 My Orders</a>
+        <a href="/cart?userId=" id="cartIcon" class="cart-icon">
           🛒
           <span class="cart-count" id="cartCount">0</span>
         </a>
@@ -78,6 +81,6 @@
     </div>
   </footer>
 
-  <script src="app.js"></script>
+  <script src="/catalog/app.js"></script>
 </body>
 </html>

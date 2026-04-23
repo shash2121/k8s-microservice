@@ -1,5 +1,7 @@
-const API_BASE = 'http://localhost:3000/api/auth';
-const CATALOG_URL = 'http://localhost:3001';
+// Base URL for auth API – use a relative path so it works both locally and inside the cluster.
+const API_BASE = '/api/auth';
+// We will resolve the catalog URL *after* a successful login, ensuring the config is available.
+// This avoids a race where the redirect happens before the async fetch completes.
 
 // Don't redirect on page load - let user see the login form
 // Only redirect after successful login
@@ -41,8 +43,8 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
         localStorage.setItem('shophub_userId', userId);
       }
 
-      // Redirect to catalog
-      window.location.href = CATALOG_URL;
+      // Redirect to the catalog UI via the Ingress path. Using a relative URL works both locally and through the proxy.
+      window.location.href = '/catalog';
     } else {
       errorMessage.textContent = result.error || 'Login failed';
       errorMessage.classList.add('show');

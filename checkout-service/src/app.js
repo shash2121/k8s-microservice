@@ -46,14 +46,22 @@ app.get('/health', (req, res) => {
   });
 });
 
-// API Routes
+// API Routes – expose under both raw and `/checkout` prefixes for ingress rewrites.
 app.use('/api/checkout', checkoutRoutes);
-app.use('/order', (req, res) => {
+app.use('/checkout/api/checkout', checkoutRoutes);
+
+// Order page – serve under both raw and prefixed paths.
+// Serve orders page under both `/orders` and `/checkout/orders` for ingress.
+app.use('/orders', (req, res) => {
+  res.sendFile('orders.html', { root: 'public' });
+});
+app.use('/checkout/orders', (req, res) => {
   res.sendFile('orders.html', { root: 'public' });
 });
 
-// Static files
+// Static files – serve assets at root and under `/checkout` prefix.
 app.use(express.static('public'));
+app.use('/checkout', express.static('public'));
 
 // Root endpoint - Checkout page
 app.get('/', (req, res) => {

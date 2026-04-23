@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: landing-service
+  labels:
+    app: landing-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: landing-service
+  template:
+    metadata:
+      labels:
+        app: landing-service
+    spec:
+      containers:
+        - name: landing-service
+          image: sha2121/shophub-landing-page:k8s-v5
+          ports:
+            - containerPort: 3000
+          env:
+            - name: PORT
+              value: "3000"
+            - name: NODE_ENV
+              value: "development"
+            - name: DB_HOST
+              value: "mysql"
+            - name: DB_PORT
+              value: "3306"
+            - name: DB_USER
+              value: "root"
+            - name: DB_PASSWORD
+              value: "password"
+            - name: DB_NAME
+              value: "shophub"
+            - name: CATALOG_URL
+              value: "http://catalog-service:3001"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: landing-service
+spec:
+  selector:
+    app: landing-service
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: 3000

@@ -4,14 +4,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Shopping Cart - ShopHub</title>
-  <link rel="stylesheet" href="/css/cart.css">
+  <!-- Prefix with /cart so the Ingress rewrites to the cart service root -->
+  <link rel="stylesheet" href="/cart/css/cart.css">
 </head>
 <body>
   <header class="header">
     <div class="container">
-      <a href="http://localhost:3001" class="logo">🛒 ShopHub</a>
+      <!-- Link back to the catalog (landing page for products) -->
+      <a href="/catalog" class="logo">🛒 ShopHub</a>
       <div class="header-actions">
-        <a href="http://localhost:3003/orders" id="ordersLink" class="orders-link">📦 My Orders</a>
+        <!-- Orders page served by the checkout service; use a relative path */
+        <a href="/checkout/orders" id="ordersLink" class="orders-link">📦 My Orders</a>
         <span class="cart-total" id="headerTotal">$0.00</span>
       </div>
     </div>
@@ -30,7 +33,7 @@
         <div class="empty-icon">🛒</div>
         <h2>Your cart is empty</h2>
         <p>Looks like you haven't added anything to your cart yet.</p>
-        <a href="http://localhost:3001" class="btn btn-primary">Start Shopping</a>
+    <a href="/catalog" class="btn btn-primary">Start Shopping</a>
       </div>
 
       <div id="cartContent" class="cart-content hidden">
@@ -81,6 +84,7 @@
     </div>
   </footer>
 
-  <script src="/js/cart.js"></script>
+  <!-- Use the /cart prefix so the Ingress rewrites to the cart service -->
+  <script src="/cart/js/cart.js"></script>
 </body>
 </html>

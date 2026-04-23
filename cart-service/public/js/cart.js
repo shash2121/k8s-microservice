@@ -1,5 +1,7 @@
-const API_BASE = 'http://localhost:3002/api/cart';
-const CATALOG_URL = 'http://localhost:3001';
+// Use relative paths prefixed with "/cart" so the Ingress rewrites to the cart service.
+const API_BASE = '/cart/api/cart';
+// Link back to the catalog UI (served under /catalog).
+const CATALOG_URL = '/catalog';
 
 // Get userId from URL parameter or localStorage
 const urlParams = new URLSearchParams(window.location.search);
@@ -43,7 +45,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // Update orders link with userId
   const ordersLink = document.getElementById('ordersLink');
   if (ordersLink) {
-    ordersLink.href = `http://localhost:3003/orders?userId=${USER_ID}`;
+    // Checkout service is reachable at /checkout
+    ordersLink.href = `/checkout/orders?userId=${USER_ID}`;
   }
 
   loadCart();
@@ -58,7 +61,8 @@ function setupEventListeners() {
 }
 
 function handleProceedToCheckout() {
-  window.location.href = `http://localhost:3003?userId=${USER_ID}`;
+  // Redirect to the checkout service (assumed to be exposed at /checkout)
+  window.location.href = `/checkout?userId=${USER_ID}`;
 }
 
 async function loadCart() {

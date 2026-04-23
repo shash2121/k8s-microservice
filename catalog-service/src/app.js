@@ -72,8 +72,8 @@ app.use((err, req, res, next) => {
 // Start server
 app.listen(PORT, () => {
   console.log(`Catalog Service running on port ${PORT}`);
-  console.log(`Health check: http://localhost:${PORT}/health`);
-  console.log(`API endpoints: http://localhost:${PORT}/api/products`);
+  console.log(`Health check: http://catalog-service:${PORT}/health`);
+  console.log(`API endpoints: http://catalog-service:${PORT}/api/products`);
 });
 
 module.exports = app;

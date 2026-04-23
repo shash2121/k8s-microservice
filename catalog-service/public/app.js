@@ -1,6 +1,15 @@
-const API_BASE = '/api/products';
-const CART_API_BASE = 'http://localhost:3002/api/cart';
-const LANDING_URL = 'http://localhost:3000';
+// All product‑related API endpoints are exposed through the landing‑service proxy at /catalog.
+// Using the /catalog prefix ensures the browser requests are routed to the catalog service via the NGINX Ingress.
+// The UI is served under the "/catalog" prefix via the Ingress. Using a relative URL (no leading slash)
+// makes the request resolve to "/catalog/api/products" which the Ingress forwards to the catalog service.
+// Use an absolute path that includes the "/catalog" prefix so the request is routed through the Ingress correctly.
+const API_BASE = '/catalog/api/products';
+// Cart service is exposed through the Ingress under the "/cart" prefix.
+// Using a relative URL ensures the request goes through the same host (e.g., localhost or apexscale.xyz).
+const CART_API_BASE = '/cart/api/cart';
+// After logout we want to go back to the landing page that served this UI.
+// Use the current origin (protocol + host) so the redirect works both locally and via the Ingress.
+const LANDING_URL = window.location.origin + '/';
 
 // Get userId from localStorage (shared with cart service)
 let USER_ID = localStorage.getItem('shophub_userId');
@@ -55,11 +64,12 @@ function displayUserInfo() {
 function updateCartLink() {
   const cartIcon = document.getElementById('cartIcon');
   if (cartIcon) {
-    cartIcon.href = `http://localhost:3002?userId=${USER_ID}`;
+    // Link to the cart UI via the Ingress prefix.
+    cartIcon.href = `/cart?userId=${USER_ID}`;
   }
   const ordersLink = document.getElementById('ordersLink');
   if (ordersLink) {
-    ordersLink.href = `http://localhost:3003/orders?userId=${USER_ID}`;
+    ordersLink.href = `http://checkout-service:3003/orders?userId=${USER_ID}`;
   }
 }
 

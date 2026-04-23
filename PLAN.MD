@@ -110,6 +110,16 @@ cd checkout-service && npm install && npm start
 
 ---
 
+## Installing Traefik
+
+ helm repo add traefik https://helm.traefik.io/traefik
+helm repo update
+
+  helm install traefik traefik/traefik \
+    --set service.type=NodePort \
+    --set service.nodePorts.http=30080 \
+    --set additionalArguments={--log.level=INFO}
+
 ## Notes
 - Services fallback to in-memory storage if MySQL is unavailable
 - With MySQL: data persists across restarts
